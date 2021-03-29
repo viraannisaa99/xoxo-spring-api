@@ -28,6 +28,7 @@ public class Product {
 		this.name = name;
 		this.price = price;
 		this.description = description;
+
 	}
 	
 	public long getId() {
@@ -61,7 +62,7 @@ public class Product {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
+	
 
 	@Override
 	public String toString() {

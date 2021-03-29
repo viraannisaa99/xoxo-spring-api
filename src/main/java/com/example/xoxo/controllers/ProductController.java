@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -39,49 +41,78 @@ import com.example.xoxo.service.ProductService;
 public class ProductController {
 	@Autowired
 	ProductService productService;
-	
+
 	//get all product
 	@GetMapping("/products")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<List<Product>> getAllProducts(@RequestParam(required = false) String name) {
-		return productService.getAllProducts(name);
+		try {
+			if(productService.getAllProducts(name).isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}else {
+				return new ResponseEntity<>(productService.getAllProducts(name), HttpStatus.OK);
+			}
+		}catch(Exception e){
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
+
 	//get product by id
 	@GetMapping("/products/{id}")
 	@PreAuthorize("hasRole('USER') or hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<Product> getProductById(@PathVariable("id") long id) {
-		return productService.getProductById(id);
+		try {
+			return new ResponseEntity<>(productService.getProductById(id), HttpStatus.OK);
+		}catch(Exception e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
-	
+
 	//create product
 	@PostMapping("/products/")
 	@PreAuthorize("hasRole('MODERATOR') or hasRole('ADMIN')")
 	public ResponseEntity<Product> createProduct(@RequestBody Product product) {
-		return productService.createProduct(product);
+		try {
+			return new ResponseEntity<>(productService.createProduct(product), HttpStatus.OK);
+		}catch(Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
-	
+
 	//delete product
 	@DeleteMapping("/products/{id}")
 	@PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
-	public ResponseEntity<HttpStatus> deleteProduct(@PathVariable("id") long id) {
-		return productService.deleteProduct(id);
+	public ResponseEntity<String> deleteProduct(@PathVariable("id") long id) {
+		try {
+			productService.deleteProduct(id);
+			return new ResponseEntity<>("Successfully Deleted Product", HttpStatus.NO_CONTENT);
+		}catch(Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
+
 	//delete all product
 	@DeleteMapping("/products")
 	@PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
-	public ResponseEntity<HttpStatus> deleteAllProducts() {
-		return productService.deleteAllProducts();
+	public ResponseEntity<String> deleteAllProducts() {
+		try {
+			productService.deleteAllProducts();
+			return new ResponseEntity<>("Successfully Deleted Product", HttpStatus.NO_CONTENT);
+		}catch(Exception e) {
+			return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
+
 	//update product
 	@PutMapping("/products/{id}")
 	@PreAuthorize("hasRole('ADMIN') or hasRole('MODERATOR')")
 	public ResponseEntity<Product> updateProduct(@PathVariable("id") long id, @RequestBody Product product) {
-		return productService.updateProduct(id, product);
+		try {
+			return new ResponseEntity<>(productService.updateProduct(id, product), HttpStatus.OK);
+		}catch(Exception e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
 	}
-	
-	
+
+
 }
